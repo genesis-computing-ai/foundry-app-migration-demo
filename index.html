@@ -27,6 +27,7 @@ body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(-
   padding: 10px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px)); border-bottom: 1px solid var(--line); background: var(--panel) }
 .bar .brand { font: 700 15px var(--display); letter-spacing: .01em }
 .bar .ctl { display: flex; align-items: center; gap: 8px }
+.bar button { display: inline-flex; align-items: center }
 .bar button, .seg button { font: 500 13px var(--body); color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; cursor: pointer }
 .bar button:focus-visible, .seg button:focus-visible, .thumbs button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
 .count { font: 13px var(--mono); color: var(--soft); min-width: 56px; text-align: center }
@@ -48,8 +49,17 @@ h2 { font: 680 clamp(24px, 2.8vw, 36px)/1.1 var(--display); margin: 0; text-wrap
 .chip { display: inline-block; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px }
 .chip.ok { background: var(--ok-bg); color: var(--accent) }
 .chip.warn { background: var(--warn-bg); color: var(--warn) }
-.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start }
-@media (max-width: 960px) { .compare { grid-template-columns: 1fr } body { overflow: auto } }
+.bar .left { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; min-width: 0 }
+.bar select { font: 500 14px var(--body); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; max-width: 60vw }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0) }
+.compare { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 14px; align-items: start }
+.arrow { align-self: center; display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--accent); padding-top: 28px }
+.arrow svg { width: 64px; height: 28px }
+.arrow span { font: 600 11px var(--body); text-transform: uppercase; letter-spacing: .08em; color: var(--soft); text-align: center; line-height: 1.3 }
+@media (max-width: 960px) { .compare { grid-template-columns: 1fr } .arrow { padding-top: 0 } .arrow svg { transform: rotate(90deg) } body { overflow: auto } }
+.howto { color: var(--soft); font-size: 13px }
+.howto summary { cursor: pointer; font-weight: 600; color: var(--ink) }
+.howto ol { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 4px; max-width: 110ch }
 figure { margin: 0; display: flex; flex-direction: column; gap: 8px; min-width: 0 }
 .fh { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; min-height: 32px }
 .label { font-size: 12px; text-transform: uppercase; letter-spacing: .09em; color: var(--soft); font-weight: 600 }
@@ -75,11 +85,16 @@ figure { margin: 0; display: flex; flex-direction: column; gap: 8px; min-width: 
 <body>
 <div class="deck">
   <div class="bar">
-    <span class="brand">Foundry Workshop → Genesis &amp; Databricks</span>
+    <div class="left">
+      <span class="brand">Palantir Foundry apps, migrated to Databricks by Genesis</span>
+      <span class="chip ok" title="Every app was rebuilt by the Genesis agent and its values proved against Foundry">12 / 12 apps migrated and proved</span>
+    </div>
     <div class="ctl">
-      <button type="button" id="prev" aria-label="Previous slide">←</button>
+      <label class="sr" for="pick">App</label>
+      <select id="pick"></select>
+      <button type="button" id="prev" aria-label="Previous app"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M10 3L5 8l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       <span class="count" id="count"></span>
-      <button type="button" id="next" aria-label="Next slide">→</button>
+      <button type="button" id="next" aria-label="Next app"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
     </div>
   </div>
   <main class="stage" id="stage" aria-live="polite"></main>
@@ -113,8 +128,8 @@ const APPS = [
     proof: "Passed 3 runs · 27 checks · 0 findings", notes: ["Title, tabs and text match", "Gap: embedded Notepad documents are links until their exports are provided"] },
 ];
 const DBX_SHOT = {}; // app g-id → "dbx/<file>" once captured from a signed-in Databricks browser
-const N = APPS.length + 2;
-let cur = 0, view = "d";
+const N = APPS.length;
+let cur = 0, view = Object.keys(DBX_SHOT).length ? "d" : "g";
 const stage = document.getElementById("stage");
 const el = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag); for (const [k, v] of Object.entries(attrs)) { if (k === "class") e.className = v; else if (k === "text") e.textContent = v; else e.setAttribute(k, v); } e.append(...kids); return e; };
 
@@ -167,18 +182,33 @@ function app(i) {
     if (a.dbx) p.append(el("p", {}, el("a", { href: DBX(a.dbx), target: "_blank", rel: "noopener", text: DBX(a.dbx) })), el("p", { class: "foot", text: "Opening it needs a login to the Databricks workspace." }));
     right.append(p);
   }
-  s.append(el("div", { class: "compare" }, left, right));
+  const arrow = el("div", { class: "arrow", "aria-hidden": "true" });
+  arrow.innerHTML = '<svg viewBox="0 0 64 28" fill="none"><path d="M2 14h54" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M46 4l12 10-12 10" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  arrow.append(el("span", { text: "migrated by" }), el("span", { text: "Genesis" }));
+  s.append(el("div", { class: "compare" }, left, arrow, right));
   const ul = el("ul"); a.notes.forEach(t => ul.append(el("li", { text: t })));
   s.append(el("div", { class: "proof" }, el("div", {}, el("h3", { text: "Proof against Foundry" }), el("div", { class: "num", text: a.proof })), el("div", {}, el("h3", { text: "Notes" }), ul)));
+  const how = el("details", { class: "howto" }, el("summary", { text: "How these were migrated" }));
+  const ol = el("ol");
+  ["Eve, the Genesis agent, read each Workshop app’s saved definition (layout, widgets, variables, charts, actions) and asked once for screenshots.",
+   "She built the app over the migrated Delta tables in Unity Catalog and compared it with the screenshots.",
+   "Every displayed value, chart, map layer and table was read from Foundry’s Ontology API and from the app at randomly sampled inputs; anything not checkable is listed, never counted as a pass.",
+   "She deployed it as a Databricks App: libraries bundled, queries on a SQL warehouse, writes as the signed-in user."].forEach(t => ol.append(el("li", { text: t })));
+  how.append(ol);
+  s.append(how);
   return s;
 }
 function render() {
-  stage.replaceChildren(cur === 0 ? cover() : cur === 1 ? how() : app(cur - 2));
+  stage.replaceChildren(app(cur));
   document.getElementById("count").textContent = (cur + 1) + " / " + N;
+  document.getElementById("pick").value = String(cur);
   stage.scrollTop = 0;
   try { history.replaceState(null, "", "#" + (cur + 1)); } catch (e) {}
 }
 function go(n) { cur = (n + N) % N; render(); }
+const pick = document.getElementById("pick");
+APPS.forEach((a, i) => pick.append(el("option", { value: String(i), text: (i + 1) + ". " + a.name })));
+pick.onchange = () => go(parseInt(pick.value, 10));
 document.getElementById("prev").onclick = () => go(cur - 1);
 document.getElementById("next").onclick = () => go(cur + 1);
 document.addEventListener("keydown", (e) => {
