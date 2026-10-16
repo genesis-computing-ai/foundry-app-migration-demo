@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Foundry Workshop Apps on Databricks</title>
+<meta name="description" content="Twelve Palantir Foundry Workshop apps migrated by Genesis to Genesis apps and Databricks Apps, proved value by value against Foundry.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Deck: one full-viewport slide at a time. App slides put Foundry beside the migrated app, large. */
+:root {
+  --bg: #f3f4f1; --panel: #ffffff; --ink: #17201e; --soft: #55615d; --line: #d8ddd6;
+  --accent: #0f7c6e; --accent-ink: #ffffff; --dbx: #ff3621; --warn: #8f5500; --warn-bg: #fbefd9; --ok-bg: #dcefe9;
+  --display: "Bricolage Grotesque", "IBM Plex Sans", system-ui, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root {
+  --bg: #111715; --panel: #1a2220; --ink: #e7edea; --soft: #a2afaa; --line: #2d3936;
+  --accent: #3fbfa9; --accent-ink: #0c1412; --warn: #f0b45a; --warn-bg: #3a2c14; --ok-bg: #173a33; color-scheme: dark } }
+* { box-sizing: border-box }
+html, body { height: 100% }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--body); overflow: hidden }
+.deck { height: 100%; display: flex; flex-direction: column }
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 10px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px)); border-bottom: 1px solid var(--line); background: var(--panel) }
+.bar .brand { font: 700 15px var(--display); letter-spacing: .01em }
+.bar .ctl { display: flex; align-items: center; gap: 8px }
+.bar button, .seg button { font: 500 13px var(--body); color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; cursor: pointer }
+.bar button:focus-visible, .seg button:focus-visible, .thumbs button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.count { font: 13px var(--mono); color: var(--soft); min-width: 56px; text-align: center }
+.stage { flex: 1; min-height: 0; overflow: auto; padding: 20px max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px)) }
+.slide { max-width: 1680px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px }
+h1 { font: 760 clamp(34px, 5vw, 64px)/1.03 var(--display); margin: 0; letter-spacing: -.015em; text-wrap: balance; max-width: 22ch }
+h2 { font: 680 clamp(24px, 2.8vw, 36px)/1.1 var(--display); margin: 0; text-wrap: balance }
+.lede { font-size: clamp(16px, 1.4vw, 20px); color: var(--soft); max-width: 70ch; margin: 0 }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 8px }
+.stat { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px }
+.stat b { display: block; font: 750 40px/1 var(--display); font-variant-numeric: tabular-nums }
+.stat span { font-size: 13px; color: var(--soft) }
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px }
+.step { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 6px }
+.step .k { font: 500 12px var(--mono); color: var(--accent); text-transform: uppercase; letter-spacing: .08em }
+.step h3 { margin: 0; font: 650 18px var(--display) }
+.step p { margin: 0; color: var(--soft) }
+.head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px }
+.chip { display: inline-block; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px }
+.chip.ok { background: var(--ok-bg); color: var(--accent) }
+.chip.warn { background: var(--warn-bg); color: var(--warn) }
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start }
+@media (max-width: 960px) { .compare { grid-template-columns: 1fr } body { overflow: auto } }
+figure { margin: 0; display: flex; flex-direction: column; gap: 8px; min-width: 0 }
+.fh { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; min-height: 32px }
+.label { font-size: 12px; text-transform: uppercase; letter-spacing: .09em; color: var(--soft); font-weight: 600 }
+.label.dbx { color: var(--dbx) }
+.shot { display: block; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--panel); max-width: 100% }
+.shot img { width: 100%; height: auto; display: block }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden }
+.seg button { border: 0; border-radius: 0 }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink) }
+.pending { border: 1px dashed var(--line); border-radius: 10px; padding: 28px; display: flex; flex-direction: column; gap: 8px; background: var(--panel); min-height: 240px; justify-content: center }
+.pending p { margin: 0; max-width: 56ch }
+.pending a, .foot a { color: var(--accent); word-break: break-all }
+.proof { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: 16px; border-top: 1px solid var(--line); padding-top: 12px }
+@media (max-width: 960px) { .proof { grid-template-columns: 1fr } }
+.proof h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .09em; color: var(--soft); margin: 0 0 4px; font-weight: 600 }
+.num { font: 14px var(--mono); font-variant-numeric: tabular-nums }
+.proof ul { margin: 0; padding-left: 18px }
+.thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px }
+.thumbs button { text-align: left; font: 500 14px var(--body); color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px; cursor: pointer; display: flex; justify-content: space-between; gap: 8px; align-items: center }
+.foot { color: var(--soft); font-size: 13px; max-width: 100ch; margin: 0 }
+</style>
+</head>
+<body>
+<div class="deck">
+  <div class="bar">
+    <span class="brand">Foundry Workshop → Genesis &amp; Databricks</span>
+    <div class="ctl">
+      <button type="button" id="prev" aria-label="Previous slide">←</button>
+      <span class="count" id="count"></span>
+      <button type="button" id="next" aria-label="Next slide">→</button>
+    </div>
+  </div>
+  <main class="stage" id="stage" aria-live="polite"></main>
+</div>
+<script>
+const DBX = (id) => "https://" + id + "-8259562314487447.gcp.databricksapps.com";
+const APPS = [
+  { name: "Route Overview", g: "route-overview-v5", f: "f-route-overview.jpg", dbx: null,
+    proof: "Passed 3 runs · 400 checks · 0 findings", notes: ["Metric rows with red/green rules, weekly flight volume and the embedded route map", "Alert detail values proven with an alert selected"] },
+  { name: "Route Carriers", g: "route-carriers-v6", f: "f-route-carriers.jpg", dbx: "route-carriers-v6",
+    proof: "Passed 3 runs · 178 checks · 0 findings", notes: ["Carrier colours, line gaps, stack order and the “No Value” bar match Foundry", "Carrier Stats is a pivot grid: Endeavor 657 / 1.80 / 125.38 / 1.03"] },
+  { name: "Route Performance", g: "route-performance-v6", f: "f-route-performance.jpg", dbx: null,
+    proof: "Passed 3 runs · 383 checks · 0 findings", notes: ["Cohorts 75 vs 919 flights, 0% vs 0.33%, 131.3 vs 128.1 min, 13% vs 17% delayed", "Cohort date filters, Reverse and all chart layers working"] },
+  { name: "Route Alert Inbox", g: "route-alert-inbox-v5", f: "f-route-alert-inbox.jpg", dbx: null,
+    proof: "Passed 3 runs · 63 checks · 0 findings", notes: ["Clickable routes, filter toggle, All / Assigned tabs and the route detail pane", "Opens on MCO → EWR, as in Foundry"] },
+  { name: "Ticket with Comments", g: "ticket-route-alert-v7", f: "f-ticket.jpg", dbx: null,
+    proof: "Passed · all values match · comment and callout actions pass their dry runs", notes: ["Comments write through an edits table, credited to the signed-in user", "Built straight from the tools, no hand-written queries"] },
+  { name: "Map and Gantt Charts", g: "map-and-gantt-v6", f: "f-map-and-gantt.jpg", dbx: "map-and-gantt-v6",
+    proof: "Passed 3 runs · 182 checks · 0 findings", notes: ["Opens on the saved Dec 20–21 window with Foundry’s six Gantt bars", "Flight history table sorted and paged"] },
+  { name: "Flights Map", g: "flights-map-v6", f: "f-flights-map.jpg", dbx: null,
+    proof: "Passed · all values match · linked Learn More pop-up passes its own proof", notes: ["Global filter, route volume bars, volume-coloured routes and airports", "Not checked: runways layer and map-click / brush filters"] },
+  { name: "Common Operating Picture", g: "common-operating-picture-v6", f: "f-cop.jpg", dbx: "cop-v6",
+    proof: "Passed 3 runs · 150 checks · 0 findings", notes: ["Totals 1,659,326 / 19,488 / 1.17% / 3,605 / 0.22% match", "Carrier facet counts and cluster map match Foundry"] },
+  { name: "Embedded Module · Airport", g: "embedded-airport-v7", f: "f-airport.jpg", dbx: null,
+    proof: "Passed 2 runs on 7 airports · values, charts, maps, tables and actions match", notes: ["The whole embedded Flights Map drawn in place, filtered to the airport", "Bound airport shown as the pre-filled filter pill, as in Foundry"] },
+  { name: "Map-Centric Module", g: "map-centric-v5", f: "f-map-centric.jpg", dbx: null,
+    proof: "Passed on 7 inputs · 0 findings", notes: ["Airports and route lines over the full map", "Opening state (all airports, all routes) proven"] },
+  { name: "Learn More Overlay", g: "learn-more-overlay-v6", f: "f-learn-more.jpg", dbx: null,
+    proof: "Passed 2 runs · Add Callout and Edit actions match · dry runs passed", notes: ["Callouts read through the edits overlay", "Add / Edit forms write rows credited to the user"] },
+  { name: "Reference Foundation Landing Page", g: "reference-landing-v5", f: "f-reference.jpg", dbx: null, gap: true,
+    proof: "Passed 3 runs · 27 checks · 0 findings", notes: ["Title, tabs and text match", "Gap: embedded Notepad documents are links until their exports are provided"] },
+];
+const DBX_SHOT = {}; // app g-id → "dbx/<file>" once captured from a signed-in Databricks browser
+const N = APPS.length + 2;
+let cur = 0, view = "d";
+const stage = document.getElementById("stage");
+const el = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag); for (const [k, v] of Object.entries(attrs)) { if (k === "class") e.className = v; else if (k === "text") e.textContent = v; else e.setAttribute(k, v); } e.append(...kids); return e; };
+
+function cover() {
+  const s = el("section", { class: "slide" });
+  s.append(el("div", { class: "label", text: "Palantir Foundry → Genesis → Databricks" }),
+    el("h1", { text: "Twelve Foundry Workshop apps, migrated by an agent and proved against Foundry" }),
+    el("p", { class: "lede", text: "Eve, the Genesis agent, rebuilt every Workshop app in the aviation workspace from its saved definition, deployed it as a Genesis app and a Databricks App, and checked each displayed value, chart, map layer and table against Foundry’s own answers at randomly sampled inputs." }));
+  const st = el("div", { class: "stats" });
+  [["12 / 12", "apps rebuilt by the agent"], ["12 / 12", "value proofs passed against Foundry"], ["5", "phases per app, run by the agent"],["4", "write-back actions working (comments, callouts)"]]
+    .forEach(([b, t]) => st.append(el("div", { class: "stat" }, el("b", { text: b }), el("span", { text: t }))));
+  s.append(st);
+  const th = el("div", { class: "thumbs" });
+  APPS.forEach((a, i) => { const b = el("button", { type: "button" }, el("span", { text: a.name }), el("span", { class: "chip " + (a.gap ? "warn" : "ok"), text: a.gap ? "gap" : "passed" })); b.onclick = () => go(i + 2); th.append(b); });
+  s.append(el("h2", { text: "The apps" }), th);
+  return s;
+}
+function how() {
+  const s = el("section", { class: "slide" });
+  s.append(el("div", { class: "label", text: "How each app was migrated" }), el("h2", { text: "One blueprint, run by the agent from a plain business request" }));
+  const st = el("div", { class: "steps" });
+  [["Phase 0", "Read the app", "The raw Workshop definition: layout, widgets, variables, text, charts, actions. Asks the user once for screenshots."],
+   ["Phase 1", "Build", "A Genesis app over the migrated Delta tables, laid out from the definition, compared against the screenshots."],
+   ["Phase 2", "Prove", "Every displayed value read from Foundry’s Ontology API and from the app at random inputs; mismatches are blamed on the app or the data."],
+   ["Phase 3", "Deploy", "Published as a Databricks App: libraries bundled, queries on a SQL warehouse, writes as the signed-in user."],
+   ["Phase 4", "Report", "What matches, what isn’t checked, and what needs a person."]]
+    .forEach(([k, h, p]) => st.append(el("div", { class: "step" }, el("span", { class: "k", text: k }), el("h3", { text: h }), el("p", { text: p }))));
+  s.append(st, el("p", { class: "foot", text: "Values the proof cannot compute are listed as not checked and never counted as passes. Visual comparison against the Foundry screenshots is model-judged. Data: the aviation example ontology copied to Unity Catalog." }));
+  return s;
+}
+function app(i) {
+  const a = APPS[i];
+  const s = el("section", { class: "slide" });
+  s.append(el("div", { class: "head" }, el("h2", { text: a.name }), el("span", { class: "chip " + (a.gap ? "warn" : "ok"), text: a.gap ? "Gaps to close" : "Matches Foundry" })));
+  const left = el("figure", {}, el("div", { class: "fh" }, el("span", { class: "label", text: "Palantir Foundry" })),
+    el("a", { class: "shot", href: "img/" + a.f, target: "_blank", rel: "noopener" }, el("img", { src: "img/" + a.f, alt: a.name + " in Palantir Foundry", loading: "lazy" })));
+  const seg = el("div", { class: "seg", role: "group", "aria-label": "Version" });
+  const bd = el("button", { type: "button", "aria-pressed": String(view === "d") , text: "Databricks App" });
+  const bg = el("button", { type: "button", "aria-pressed": String(view === "g"), text: "Genesis app" });
+  bd.onclick = () => { view = "d"; render(); }; bg.onclick = () => { view = "g"; render(); };
+  seg.append(bd, bg);
+  const right = el("figure", {}, el("div", { class: "fh" }, seg, el("span", { class: "label" + (view === "d" ? " dbx" : ""), text: view === "d" ? "Running in Databricks" : "Running in Genesis" })));
+  if (view === "g") {
+    right.append(el("a", { class: "shot", href: "img/g-" + a.g + ".jpg", target: "_blank", rel: "noopener" }, el("img", { src: "img/g-" + a.g + ".jpg", alt: a.name + " rebuilt as a Genesis app", loading: "lazy" })));
+  } else if (DBX_SHOT[a.g]) {
+    right.append(el("a", { class: "shot", href: DBX_SHOT[a.g], target: "_blank", rel: "noopener" }, el("img", { src: DBX_SHOT[a.g], alt: a.name + " running as a Databricks App", loading: "lazy" })));
+  } else {
+    const p = el("div", { class: "pending" }, el("span", { class: "chip warn", text: a.dbx ? "Deployed · capture coming" : "Deploying" }),
+      el("p", { text: a.dbx ? "This app runs as a Databricks App on the workspace; its screenshot from a signed-in browser is being added." : "The Databricks App for this one is being deployed now." }));
+    if (a.dbx) p.append(el("p", {}, el("a", { href: DBX(a.dbx), target: "_blank", rel: "noopener", text: DBX(a.dbx) })), el("p", { class: "foot", text: "Opening it needs a login to the Databricks workspace." }));
+    right.append(p);
+  }
+  s.append(el("div", { class: "compare" }, left, right));
+  const ul = el("ul"); a.notes.forEach(t => ul.append(el("li", { text: t })));
+  s.append(el("div", { class: "proof" }, el("div", {}, el("h3", { text: "Proof against Foundry" }), el("div", { class: "num", text: a.proof })), el("div", {}, el("h3", { text: "Notes" }), ul)));
+  return s;
+}
+function render() {
+  stage.replaceChildren(cur === 0 ? cover() : cur === 1 ? how() : app(cur - 2));
+  document.getElementById("count").textContent = (cur + 1) + " / " + N;
+  stage.scrollTop = 0;
+  try { history.replaceState(null, "", "#" + (cur + 1)); } catch (e) {}
+}
+function go(n) { cur = (n + N) % N; render(); }
+document.getElementById("prev").onclick = () => go(cur - 1);
+document.getElementById("next").onclick = () => go(cur + 1);
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") { e.preventDefault(); go(cur + 1); }
+  else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); go(cur - 1); }
+  else if (e.key === "Home") go(0);
+});
+const h = parseInt((location.hash || "").slice(1), 10); if (h >= 1 && h <= N) cur = h - 1;
+render();
+</script>
+</body>
+</html>
