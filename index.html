@@ -146,8 +146,8 @@ const APPS = [
     proof: "Verified · 100% coverage · every airport, route, key and coordinate matches at 11 random inputs × 3 runs", notes: ["Airports and route lines over the full map", "Opening state (all airports, all routes) proven"] },
   { name: "Learn More Overlay", dshot: "learn-more-overlay-v6", short: "Learn More", sub: "Reusable pop-up module, shown here on its own", g: "learn-more-overlay-v9", f: "f-learn-more.jpg", dbx: "genesis-learn-more-overlay-v9",
     proof: "Every check passed, 0 failed · Prover status fields disagree (verified vs not verified), a tool bug being fixed", notes: ["Not a standalone app: a reusable pop-up that other apps (Flights Map, Ticket, Airport) open from their “How it works” buttons, so in Foundry too it is just a titled text panel", "The rebuilt apps open this same module as their pop-up; its explainer text is editable, with edits credited to the signed-in user"] },
-  { name: "Reference Foundation Landing Page", dshot: "reference-landing-v7", short: "Reference", g: "reference-landing-v9", f: "f-reference.jpg", dbx: "genesis-reference-landing-v9", gap: true,
-    proof: "No check failed · coverage 17%, below the 80% bar: two Notepad documents and the embedded inbox are not yet checkable", notes: ["Title, tabs and text match", "Gap: the Foundation Data Index Notepad is a partial copy transcribed from a screenshot (no diagram); a fix to read Notepad documents from Foundry is in progress"] },
+  { name: "Reference Foundation Landing Page", dshot: "reference-landing-v7", short: "Reference", g: "reference-landing-v10", f: "f-reference.jpg", dbx: "genesis-reference-landing-v10", gap: true,
+    proof: "No check failed · both Notepad documents match Foundry · coverage 28%, below the 80% bar (embedded inbox not yet checkable; a fix just merged, re-proof next)", notes: ["The Foundation Data Index and Reference Example Index Notepad documents read from Foundry, lineage diagram included", "The Example Application tab embeds the migrated Route Alert Inbox"] },
 ];
 const N = APPS.length;
 let cur = 0, view = "d";
