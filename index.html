@@ -124,23 +124,23 @@ figure { margin: 0; display: flex; flex-direction: column; gap: 8px; min-width: 
 <script>
 const DBX = (id) => "https://" + id + "-8259562314487447.gcp.databricksapps.com";
 const APPS = [
-  { name: "Route Overview", dshot: "route-overview-v5", short: "Overview", g: "route-overview-v9", f: "f-route-overview.jpg", dbx: "genesis-route-overview-v9",
+  { name: "Route Overview", dshot: "route-overview-v9", dapp: "genesis-route-overview-v9", short: "Overview", g: "route-overview-v9", f: "f-route-overview.jpg", dbx: "genesis-route-overview-v9",
     proof: "Verified with open items · 3 runs, 44 random routes · 94 checks, 0 failed · coverage 87%", notes: ["Metric rows with red/green rules, weekly flight volume and the embedded route map", "Alert detail values proven with an alert selected"] },
-  { name: "Route Carriers", dshot: "route-carriers-v6", short: "Carriers", g: "route-carriers-v9", f: "f-route-carriers.jpg", dbx: "genesis-route-carriers-v9",
+  { name: "Route Carriers", dshot: "route-carriers-v9", dapp: "genesis-route-carriers-v9", short: "Carriers", g: "route-carriers-v9", f: "f-route-carriers.jpg", dbx: "genesis-route-carriers-v9",
     proof: "Verified with open items · 0 failed · coverage 95% (37 of 39 widgets)", notes: ["Carrier colours, line gaps, stack order and the “No Value” bar match Foundry", "Carrier Stats is a pivot grid: Endeavor 657 / 1.80 / 125.38 / 1.03"] },
-  { name: "Route Performance", dshot: "route-performance-v6", short: "Performance", g: "route-performance-v9", f: "f-route-performance.jpg", dbx: "genesis-route-performance-v9",
+  { name: "Route Performance", dshot: "route-performance-v9", dapp: "genesis-route-performance-v9", short: "Performance", g: "route-performance-v9", f: "f-route-performance.jpg", dbx: "genesis-route-performance-v9",
     proof: "Verified with open items · 11 routes per run · 94 checks, 0 failed · coverage 91%", notes: ["Cohorts 75 vs 919 flights, 0% vs 0.33%, 131.3 vs 128.1 min, 13% vs 17% delayed", "Cohort date filters, Reverse and all chart layers working"] },
-  { name: "Route Alert Inbox", dshot: "route-alert-inbox-v5", short: "Alert Inbox", g: "route-alert-inbox-v10", f: "f-route-alert-inbox.jpg", dbx: "genesis-route-alert-inbox-v9",
+  { name: "Route Alert Inbox", dshot: "route-alert-inbox-v9", dapp: "genesis-route-alert-inbox-v9", short: "Alert Inbox", g: "route-alert-inbox-v10", f: "f-route-alert-inbox.jpg", dbx: "genesis-route-alert-inbox-v9",
     proof: "Verified with open items · 3 runs · 27 checks, 0 failed · coverage 92% (welcome text, route list and filters now checked)", notes: ["Clickable routes, filter toggle, All / Assigned tabs and the route detail pane", "Opens on MCO → EWR, as in Foundry"] },
   { name: "Ticket with Comments", dshot: "ticket-route-alert-v7", short: "Ticket", g: "ticket-route-alert-v9", f: "f-ticket.jpg", dbx: "genesis-ticket-route-alert-v9",
     proof: "Verified with open items · 3 runs · 31 checks, 0 failed · coverage 85% · comment and callout saves rehearsed", notes: ["Comments write through an edits table, credited to the signed-in user", "Built straight from the tools, no hand-written queries"] },
-  { name: "Map and Gantt Charts", dshot: "map-and-gantt-v6", short: "Map & Gantt", g: "map-and-gantt-v9", f: "f-map-and-gantt.jpg", dbx: "genesis-map-and-gantt-v9",
+  { name: "Map and Gantt Charts", dshot: "map-and-gantt-v9", dapp: "genesis-map-and-gantt-v9", short: "Map & Gantt", g: "map-and-gantt-v9", f: "f-map-and-gantt.jpg", dbx: "genesis-map-and-gantt-v9",
     proof: "Verified with open items · 0 failed · coverage 94% (15 of 16 widgets)", notes: ["Opens on the saved Dec 20–21 window with Foundry’s six Gantt bars", "Flight history table sorted and paged"] },
-  { name: "Flights Map", dshot: "flights-map-v7", short: "Flights Map", g: "flights-map-v9", f: "f-flights-map.jpg", dbx: "genesis-flights-map-v9",
+  { name: "Flights Map", dshot: "flights-map-v9", dapp: "genesis-flights-map-v9", short: "Flights Map", g: "flights-map-v9", f: "f-flights-map.jpg", dbx: "genesis-flights-map-v9",
     proof: "Verified with open items · 0 failed · coverage 86% (12 of 14 widgets)", notes: ["Global filter, route volume bars, volume-coloured routes and airports", "Not checked: runways layer and map-click / brush filters"] },
-  { name: "Common Operating Picture", dshot: "cop-v6", short: "Op. Picture", g: "common-operating-picture-v10", f: "f-cop.jpg", dbx: "genesis-common-operating-pictu",
+  { name: "Common Operating Picture", dshot: "common-operating-picture-v9", dapp: "genesis-common-operating-pictu", short: "Op. Picture", g: "common-operating-picture-v10", f: "f-cop.jpg", dbx: "genesis-common-operating-pictu",
     proof: "Verified with open items · 3 runs · 24 checks, 0 failed · coverage 88% (greeting, carrier filter counts and histogram now checked)", notes: ["Totals 1,659,326 / 19,488 / 1.17% / 3,605 / 0.22% match", "Carrier facet counts and cluster map match Foundry"] },
-  { name: "Embedded Module · Airport", dshot: "embedded-airport-v7", short: "Airport", g: "embedded-airport-v9", f: "f-airport.jpg", dbx: "genesis-embedded-airport-v9",
+  { name: "Embedded Module · Airport", dshot: "embedded-airport-v9", dapp: "genesis-embedded-airport-v9", short: "Airport", g: "embedded-airport-v9", f: "f-airport.jpg", dbx: "genesis-embedded-airport-v9",
     proof: "Verified with open items · 2 fresh runs · 49 checks, 0 failed · coverage 83%", notes: ["The whole embedded Flights Map drawn in place, filtered to the airport", "Bound airport shown as the pre-filled filter pill, as in Foundry"] },
   { name: "Map-Centric Module", dshot: "map-centric-v5", short: "Map-Centric", g: "map-centric-v9", f: "f-map-centric.jpg", dbx: "genesis-map-centric-v9",
     proof: "Verified · 100% coverage · every airport, route, key and coordinate matches at 11 random inputs × 3 runs", notes: ["Airports and route lines over the full map", "Opening state (all airports, all routes) proven"] },
@@ -196,12 +196,12 @@ function app(i) {
   if (view === "g") {
     right.append(el("a", { class: "shot", href: "img/g-" + a.g + ".jpg", target: "_blank", rel: "noopener" }, el("img", { src: "img/g-" + a.g + ".jpg", alt: a.name + " rebuilt as a Genesis app", loading: "lazy" })));
   } else if (a.dshot) {
-    const url = DBX(a.dshot);
+    const url = DBX(a.dapp || a.dshot);
     const frame = el("div", { class: "dframe" });
     const bar = el("div", { class: "dbar" }, el("span", { class: "ddot", "aria-hidden": "true" }), el("a", { class: "durl", href: url, target: "_blank", rel: "noopener", text: url.replace("https://", "") }));
     frame.append(bar, el("a", { class: "dimg", href: "img/dbx/" + a.dshot + ".jpg", target: "_blank", rel: "noopener" }, el("img", { src: "img/dbx/" + a.dshot + ".jpg", alt: a.name + " running as a Databricks App", loading: "lazy" })));
     right.append(frame);
-    const note = a.dshot === a.dbx ? "Captured from a signed-in browser at this Databricks App address." : "Captured from a signed-in browser at this address, before Eve’s latest rebuild. The rebuilt app is deployed at " + DBX(a.dbx).replace("https://", "") + "; its screenshot is coming.";
+    const note = (a.dapp || a.dshot) === a.dbx ? "Captured from a signed-in browser at this Databricks App address." : "Captured from a signed-in browser at this address, before Eve’s latest rebuild. The rebuilt app is deployed at " + DBX(a.dbx).replace("https://", "") + "; its screenshot is coming.";
     right.append(el("p", { class: "foot", text: note }));
   } else {
     const p = el("div", { class: "pending" }, el("span", { class: "chip warn", text: a.dbx ? "Deployed · capture coming" : "Deploying" }),
