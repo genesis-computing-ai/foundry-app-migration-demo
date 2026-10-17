@@ -30,7 +30,6 @@ body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(-
 .bar button { display: inline-flex; align-items: center }
 .bar button, .seg button { font: 500 13px var(--body); color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; cursor: pointer }
 .bar button:focus-visible, .seg button:focus-visible, .thumbs button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
-.count { font: 13px var(--mono); color: var(--soft); min-width: 56px; text-align: center }
 .stage { flex: 1; min-height: 0; overflow: auto; padding: 20px max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px)) }
 .slide { max-width: 1680px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px }
 h1 { font: 760 clamp(34px, 5vw, 64px)/1.03 var(--display); margin: 0; letter-spacing: -.015em; text-wrap: balance; max-width: 22ch }
@@ -80,6 +79,25 @@ figure { margin: 0; display: flex; flex-direction: column; gap: 8px; min-width: 
 .thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px }
 .thumbs button { text-align: left; font: 500 14px var(--body); color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px; cursor: pointer; display: flex; justify-content: space-between; gap: 8px; align-items: center }
 .foot { color: var(--soft); font-size: 13px; max-width: 100ch; margin: 0 }
+.nav { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: stretch;
+  padding: 10px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px)); border-bottom: 1px solid var(--line); background: var(--bg) }
+.step-btn { display: inline-flex; align-items: center; gap: 10px; font: 600 15px var(--body); color: var(--accent-ink); background: var(--accent); border: 0; border-radius: 10px; padding: 10px 16px; cursor: pointer; text-align: left; min-width: 0 }
+.step-btn span { display: flex; flex-direction: column; line-height: 1.2; min-width: 0 }
+.step-btn small { font: 500 11px var(--body); text-transform: uppercase; letter-spacing: .08em; opacity: .85 }
+.step-btn b { font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 16ch }
+.step-btn.next { text-align: right } .step-btn.next span { align-items: flex-end }
+.step-btn:hover { filter: brightness(1.08) }
+.tabs { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 6px; min-width: 0 }
+.tab { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 0; font: 500 12px var(--body); color: var(--soft); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 6px 4px; cursor: pointer }
+.tab b { font: 700 18px/1 var(--display); color: var(--ink); font-variant-numeric: tabular-nums }
+.tab span { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.tab:hover { border-color: var(--accent) }
+.tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink) }
+.tab[aria-selected="true"] b { color: var(--accent-ink) }
+.tab:focus-visible, .step-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.pos { font: 600 13px var(--mono); color: var(--accent); letter-spacing: .04em; text-transform: uppercase }
+@media (max-width: 1100px) { .tab span { display: none } .step-btn b { display: none } }
+@media (max-width: 640px) { .nav { grid-template-columns: 1fr 1fr; } .tabs { grid-column: 1 / -1; grid-row: 1; grid-template-columns: repeat(6, minmax(0, 1fr)) } .step-btn b { display: block } }
 </style>
 </head>
 <body>
@@ -89,42 +107,40 @@ figure { margin: 0; display: flex; flex-direction: column; gap: 8px; min-width: 
       <span class="brand">Palantir Foundry apps, migrated to Databricks by Genesis</span>
       <span class="chip ok" title="Every app was rebuilt by the Genesis agent and its values proved against Foundry">12 / 12 apps migrated and proved</span>
     </div>
-    <div class="ctl">
-      <label class="sr" for="pick">App</label>
-      <select id="pick"></select>
-      <button type="button" id="prev" aria-label="Previous app"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M10 3L5 8l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-      <span class="count" id="count"></span>
-      <button type="button" id="next" aria-label="Next app"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-    </div>
   </div>
+  <nav class="nav" aria-label="Apps">
+    <button type="button" class="step-btn" id="prev"><svg viewBox="0 0 16 16" width="20" height="20" aria-hidden="true"><path d="M10 3L5 8l5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><small>Previous</small><b id="prevName"></b></span></button>
+    <div class="tabs" id="tabs" role="tablist"></div>
+    <button type="button" class="step-btn next" id="next"><span><small>Next</small><b id="nextName"></b></span><svg viewBox="0 0 16 16" width="20" height="20" aria-hidden="true"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </nav>
   <main class="stage" id="stage" aria-live="polite"></main>
 </div>
 <script>
 const DBX = (id) => "https://" + id + "-8259562314487447.gcp.databricksapps.com";
 const APPS = [
-  { name: "Route Overview", g: "route-overview-v5", f: "f-route-overview.jpg", dbx: "route-overview-v5",
+  { name: "Route Overview", short: "Overview", g: "route-overview-v5", f: "f-route-overview.jpg", dbx: "route-overview-v5",
     proof: "Passed 3 runs · 400 checks · 0 findings", notes: ["Metric rows with red/green rules, weekly flight volume and the embedded route map", "Alert detail values proven with an alert selected"] },
-  { name: "Route Carriers", g: "route-carriers-v6", f: "f-route-carriers.jpg", dbx: "route-carriers-v6",
+  { name: "Route Carriers", short: "Carriers", g: "route-carriers-v6", f: "f-route-carriers.jpg", dbx: "route-carriers-v6",
     proof: "Passed 3 runs · 178 checks · 0 findings", notes: ["Carrier colours, line gaps, stack order and the “No Value” bar match Foundry", "Carrier Stats is a pivot grid: Endeavor 657 / 1.80 / 125.38 / 1.03"] },
-  { name: "Route Performance", g: "route-performance-v6", f: "f-route-performance.jpg", dbx: "route-performance-v6",
+  { name: "Route Performance", short: "Performance", g: "route-performance-v6", f: "f-route-performance.jpg", dbx: "route-performance-v6",
     proof: "Passed 3 runs · 383 checks · 0 findings", notes: ["Cohorts 75 vs 919 flights, 0% vs 0.33%, 131.3 vs 128.1 min, 13% vs 17% delayed", "Cohort date filters, Reverse and all chart layers working"] },
-  { name: "Route Alert Inbox", g: "route-alert-inbox-v5", f: "f-route-alert-inbox.jpg", dbx: "route-alert-inbox-v5",
+  { name: "Route Alert Inbox", short: "Alert Inbox", g: "route-alert-inbox-v5", f: "f-route-alert-inbox.jpg", dbx: "route-alert-inbox-v5",
     proof: "Passed 3 runs · 63 checks · 0 findings", notes: ["Clickable routes, filter toggle, All / Assigned tabs and the route detail pane", "Opens on MCO → EWR, as in Foundry"] },
-  { name: "Ticket with Comments", g: "ticket-route-alert-v7", f: "f-ticket.jpg", dbx: "ticket-route-alert-v7",
+  { name: "Ticket with Comments", short: "Ticket", g: "ticket-route-alert-v7", f: "f-ticket.jpg", dbx: "ticket-route-alert-v7",
     proof: "Passed · all values match · comment and callout actions pass their dry runs", notes: ["Comments write through an edits table, credited to the signed-in user", "Built straight from the tools, no hand-written queries"] },
-  { name: "Map and Gantt Charts", g: "map-and-gantt-v6", f: "f-map-and-gantt.jpg", dbx: "map-and-gantt-v6",
+  { name: "Map and Gantt Charts", short: "Map & Gantt", g: "map-and-gantt-v6", f: "f-map-and-gantt.jpg", dbx: "map-and-gantt-v6",
     proof: "Passed 3 runs · 182 checks · 0 findings", notes: ["Opens on the saved Dec 20–21 window with Foundry’s six Gantt bars", "Flight history table sorted and paged"] },
-  { name: "Flights Map", g: "flights-map-v6", f: "f-flights-map.jpg", dbx: "flights-map-v7",
+  { name: "Flights Map", short: "Flights Map", g: "flights-map-v6", f: "f-flights-map.jpg", dbx: "flights-map-v7",
     proof: "Passed · all values match · linked Learn More pop-up passes its own proof", notes: ["Global filter, route volume bars, volume-coloured routes and airports", "Not checked: runways layer and map-click / brush filters"] },
-  { name: "Common Operating Picture", g: "common-operating-picture-v6", f: "f-cop.jpg", dbx: "cop-v6",
+  { name: "Common Operating Picture", short: "Op. Picture", g: "common-operating-picture-v6", f: "f-cop.jpg", dbx: "cop-v6",
     proof: "Passed 3 runs · 150 checks · 0 findings", notes: ["Totals 1,659,326 / 19,488 / 1.17% / 3,605 / 0.22% match", "Carrier facet counts and cluster map match Foundry"] },
-  { name: "Embedded Module · Airport", g: "embedded-airport-v8", f: "f-airport.jpg", dbx: "embedded-airport-v7",
+  { name: "Embedded Module · Airport", short: "Airport", g: "embedded-airport-v8", f: "f-airport.jpg", dbx: "embedded-airport-v7",
     proof: "Values match on 2 runs, 20 airports (28 of 28) · edits dry-run correct · coverage below 80% (proof tool gap)", notes: ["The whole embedded Flights Map drawn in place, filtered to the airport", "Bound airport shown as the pre-filled filter pill, as in Foundry"] },
-  { name: "Map-Centric Module", g: "map-centric-v5", f: "f-map-centric.jpg", dbx: "map-centric-v5",
+  { name: "Map-Centric Module", short: "Map-Centric", g: "map-centric-v5", f: "f-map-centric.jpg", dbx: "map-centric-v5",
     proof: "Passed on 7 inputs · 0 findings", notes: ["Airports and route lines over the full map", "Opening state (all airports, all routes) proven"] },
-  { name: "Learn More Overlay", g: "learn-more-overlay-v6", f: "f-learn-more.jpg", dbx: "learn-more-overlay-v6",
+  { name: "Learn More Overlay", short: "Learn More", g: "learn-more-overlay-v6", f: "f-learn-more.jpg", dbx: "learn-more-overlay-v6",
     proof: "Passed 2 runs · Add Callout and Edit actions match · dry runs passed", notes: ["Callouts read through the edits overlay", "Add / Edit forms write rows credited to the user"] },
-  { name: "Reference Foundation Landing Page", g: "reference-landing-v5", f: "f-reference.jpg", dbx: "reference-landing-v7", gap: true,
+  { name: "Reference Foundation Landing Page", short: "Reference", g: "reference-landing-v5", f: "f-reference.jpg", dbx: "reference-landing-v7", gap: true,
     proof: "Passed 3 runs · 27 checks · 0 findings", notes: ["Title, tabs and text match", "Gap: embedded Notepad documents are links until their exports are provided"] },
 ];
 const DBX_SHOT = {}; // app g-id → "dbx/<file>" once captured from a signed-in Databricks browser
@@ -163,7 +179,7 @@ function how() {
 function app(i) {
   const a = APPS[i];
   const s = el("section", { class: "slide" });
-  s.append(el("div", { class: "head" }, el("h2", { text: a.name }), el("span", { class: "chip " + (a.gap ? "warn" : "ok"), text: a.gap ? "Gaps to close" : "Matches Foundry" })));
+  s.append(el("div", { class: "head" }, el("div", {}, el("div", { class: "pos", text: "App " + (i + 1) + " of " + N }), el("h2", { text: a.name })), el("span", { class: "chip " + (a.gap ? "warn" : "ok"), text: a.gap ? "Gaps to close" : "Matches Foundry" })));
   const left = el("figure", {}, el("div", { class: "fh" }, el("span", { class: "label", text: "Palantir Foundry" })),
     el("a", { class: "shot", href: "img/" + a.f, target: "_blank", rel: "noopener" }, el("img", { src: "img/" + a.f, alt: a.name + " in Palantir Foundry", loading: "lazy" })));
   const seg = el("div", { class: "seg", role: "group", "aria-label": "Version" });
@@ -200,15 +216,15 @@ function app(i) {
 }
 function render() {
   stage.replaceChildren(app(cur));
-  document.getElementById("count").textContent = (cur + 1) + " / " + N;
-  document.getElementById("pick").value = String(cur);
+  [...tabs.children].forEach((t, j) => { t.setAttribute("aria-selected", String(j === cur)); t.tabIndex = j === cur ? 0 : -1; });
+  document.getElementById("prevName").textContent = APPS[(cur - 1 + N) % N].short;
+  document.getElementById("nextName").textContent = APPS[(cur + 1) % N].short;
   stage.scrollTop = 0;
   try { history.replaceState(null, "", "#" + (cur + 1)); } catch (e) {}
 }
 function go(n) { cur = (n + N) % N; render(); }
-const pick = document.getElementById("pick");
-APPS.forEach((a, i) => pick.append(el("option", { value: String(i), text: (i + 1) + ". " + a.name })));
-pick.onchange = () => go(parseInt(pick.value, 10));
+const tabs = document.getElementById("tabs");
+APPS.forEach((a, i) => { const t = el("button", { type: "button", class: "tab", role: "tab", title: a.name, "aria-label": (i + 1) + ". " + a.name }, el("b", { text: String(i + 1) }), el("span", { text: a.short })); t.onclick = () => go(i); tabs.append(t); });
 document.getElementById("prev").onclick = () => go(cur - 1);
 document.getElementById("next").onclick = () => go(cur + 1);
 document.addEventListener("keydown", (e) => {
