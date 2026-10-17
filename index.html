@@ -138,8 +138,8 @@ const APPS = [
     proof: "Values match on 2 runs, 20 airports (28 of 28) · edits dry-run correct · coverage below 80% (proof tool gap)", notes: ["The whole embedded Flights Map drawn in place, filtered to the airport", "Bound airport shown as the pre-filled filter pill, as in Foundry"] },
   { name: "Map-Centric Module", short: "Map-Centric", g: "map-centric-v5", f: "f-map-centric.jpg", dbx: "map-centric-v5",
     proof: "Passed on 7 inputs · 0 findings", notes: ["Airports and route lines over the full map", "Opening state (all airports, all routes) proven"] },
-  { name: "Learn More Overlay", short: "Learn More", g: "learn-more-overlay-v6", f: "f-learn-more.jpg", dbx: "learn-more-overlay-v6",
-    proof: "Passed 2 runs · Add Callout and Edit actions match · dry runs passed", notes: ["Callouts read through the edits overlay", "Add / Edit forms write rows credited to the user"] },
+  { name: "Learn More Overlay", short: "Learn More", sub: "Reusable pop-up module, shown here on its own", g: "learn-more-overlay-v6", f: "f-learn-more.jpg", dbx: "learn-more-overlay-v6",
+    proof: "Passed 2 runs · Add Callout and Edit actions match · dry runs passed", notes: ["Not a standalone app: a reusable pop-up that other apps (Flights Map, Ticket, Airport) open from their “How it works” buttons, so in Foundry too it is just a titled text panel", "The rebuilt apps open this same module as their pop-up; its explainer text is editable, with edits credited to the signed-in user"] },
   { name: "Reference Foundation Landing Page", short: "Reference", g: "reference-landing-v5", f: "f-reference.jpg", dbx: "reference-landing-v7", gap: true,
     proof: "Passed 3 runs · 27 checks · 0 findings", notes: ["Title, tabs and text match", "Gap: embedded Notepad documents are links until their exports are provided"] },
 ];
@@ -179,7 +179,7 @@ function how() {
 function app(i) {
   const a = APPS[i];
   const s = el("section", { class: "slide" });
-  s.append(el("div", { class: "head" }, el("div", {}, el("div", { class: "pos", text: "App " + (i + 1) + " of " + N }), el("h2", { text: a.name })), el("span", { class: "chip " + (a.gap ? "warn" : "ok"), text: a.gap ? "Gaps to close" : "Matches Foundry" })));
+  s.append(el("div", { class: "head" }, el("div", {}, el("div", { class: "pos", text: "App " + (i + 1) + " of " + N }), el("h2", { text: a.name }), a.sub ? el("div", { class: "foot", text: a.sub }) : ""), el("span", { class: "chip " + (a.gap ? "warn" : "ok"), text: a.gap ? "Gaps to close" : "Matches Foundry" })));
   const left = el("figure", {}, el("div", { class: "fh" }, el("span", { class: "label", text: "Palantir Foundry" })),
     el("a", { class: "shot", href: "img/" + a.f, target: "_blank", rel: "noopener" }, el("img", { src: "img/" + a.f, alt: a.name + " in Palantir Foundry", loading: "lazy" })));
   const seg = el("div", { class: "seg", role: "group", "aria-label": "Version" });
