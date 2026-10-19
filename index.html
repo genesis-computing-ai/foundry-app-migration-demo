@@ -141,7 +141,7 @@ const APPS = [
     proof: "Verified with open items · 37 checks, 0 failed · coverage 100% (route detail panel and alert tags now checked)", notes: ["Route detail panel: Foundry's Object View, read from Foundry and drawn with its properties and links", "Alert tags under each route, welcome text and filters checked against Foundry"] },
   { name: "Ticket with Comments", dshot: "ticket-route-alert-v11", dapp: "ticket-route-alert-v11", short: "Ticket", g: "ticket-route-alert-v11", dproof: "Verified with open items · 31 of 32 checks passed, 0 failed · coverage 85% · 3 of 3 save rehearsals passed (comments, callouts)", f: "f-ticket.jpg", dbx: "ticket-route-alert-v11",
     proof: "Verified with open items · 3 runs · 31 checks, 0 failed · coverage 85% · comment and callout saves rehearsed", notes: ["Comments write through an edits table, credited to the signed-in user", "Built straight from the tools, no hand-written queries"] },
-  { name: "Map and Gantt Charts", dshot: "map-and-gantt-v11", dapp: "map-and-gantt-v11", short: "Map & Gantt", g: "map-and-gantt-v11", dproof: "Verified with open items · 46 of 47 checks passed, 0 failed · coverage 94% · 10 random aircraft", f: "f-map-and-gantt.jpg", dbx: "map-and-gantt-v11",
+  { name: "Map and Gantt Charts", fnote: "This Foundry capture was taken before Foundry’s map tiles had loaded, so its map area is blank; a recapture with the map drawn is coming.", dshot: "map-and-gantt-v11", dapp: "map-and-gantt-v11", short: "Map & Gantt", g: "map-and-gantt-v11", dproof: "Verified with open items · 46 of 47 checks passed, 0 failed · coverage 94% · 10 random aircraft", f: "f-map-and-gantt.jpg", dbx: "map-and-gantt-v11",
     proof: "Verified with open items · 0 failed · coverage 94% (15 of 16 widgets)", notes: ["Opens on the saved Dec 20–21 window with Foundry’s six Gantt bars", "Flight history table sorted and paged"] },
   { name: "Flights Map", dshot: "flights-map-v12", dapp: "flights-map-v12", short: "Flights Map", g: "flights-map-v12", dproof: "Verified with open items · 18 of 19 checks passed, 0 failed · coverage 93%", f: "f-flights-map.jpg", dbx: "flights-map-v12",
     proof: "Verified with open items · 33 checks, 0 failed · coverage 93%", notes: ["Search bar, route-volume labels and gradient map legend match Foundry", "Not rebuilt: the runways layer"] },
@@ -202,6 +202,7 @@ function app(i) {
   const left = el("figure", {}, el("div", { class: "fh" }, el("span", { class: "label", text: "Palantir Foundry" })),
     a.f ? el("a", { class: "shot", href: "img/" + a.f, target: "_blank", rel: "noopener" }, el("img", { src: "img/" + a.f, alt: a.name + " in Palantir Foundry", loading: "lazy" }))
         : el("div", { class: "pending" }, el("span", { class: "chip warn", text: "Foundry capture coming" }), el("p", { text: "The screenshot of the original Workshop app is being taken in Foundry." })));
+  if (a.fnote) left.append(el("p", { class: "foot", text: a.fnote }));
   const seg = el("div", { class: "seg", role: "group", "aria-label": "Version" });
   const bd = el("button", { type: "button", "aria-pressed": String(view === "d") , text: "Databricks App" });
   const bg = el("button", { type: "button", "aria-pressed": String(view === "g"), text: "Genesis app" });
