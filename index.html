@@ -141,7 +141,7 @@ const APPS = [
     proof: "Verified with open items · 37 checks, 0 failed · coverage 100% (route detail panel and alert tags now checked)", notes: ["Route detail panel: Foundry's Object View, read from Foundry and drawn with its properties and links", "Alert tags under each route, welcome text and filters checked against Foundry"] },
   { name: "Ticket with Comments", dshot: "ticket-route-alert-v11", dapp: "ticket-route-alert-v11", short: "Ticket", g: "ticket-route-alert-v11", dproof: "Verified with open items · 31 of 32 checks passed, 0 failed · coverage 85% · 3 of 3 save rehearsals passed (comments, callouts)", f: "f-ticket.jpg", dbx: "ticket-route-alert-v11",
     proof: "Verified with open items · 3 runs · 31 checks, 0 failed · coverage 85% · comment and callout saves rehearsed", notes: ["Comments write through an edits table, credited to the signed-in user", "Built straight from the tools, no hand-written queries"] },
-  { name: "Map and Gantt Charts", fnote: "Shown on the Flight History tab. In this Foundry workspace the Flight Review map does not render at all (no map element, no error), so Flight Review can’t be compared visually; the migrated app draws that map from the same data. A Foundry capture of Flight History is coming.", dshot: "map-and-gantt-v11--history", dapp: "map-and-gantt-v11", short: "Map & Gantt", g: "map-and-gantt-v11--history", dproof: "Verified with open items · 46 of 47 checks passed, 0 failed · coverage 94% · 10 random aircraft", f: "f-map-and-gantt.jpg", dbx: "map-and-gantt-v11",
+  { name: "Map and Gantt Charts", vdefault: 0, fviews: [["Flight Review","f-map-and-gantt"],["Flight History",null]], dviews: [["Flight Review","map-and-gantt-v11"],["Flight History","map-and-gantt-v11--history"]], gviews: [["Flight Review","map-and-gantt-v11"],["Flight History","map-and-gantt-v11--history"]], fnote: "On the Flight Review tab, the map does not render in this Palantir Foundry workspace for some reason: after reloads and long waits the page has no map element and shows no error. The Gantt below it renders, and the migrated app draws both the map and the Gantt from the same data.", dshot: "map-and-gantt-v11", dapp: "map-and-gantt-v11", short: "Map & Gantt", g: "map-and-gantt-v11", dproof: "Verified with open items · 46 of 47 checks passed, 0 failed · coverage 94% · 10 random aircraft", f: "f-map-and-gantt.jpg", dbx: "map-and-gantt-v11",
     proof: "Verified with open items · 0 failed · coverage 94% (15 of 16 widgets)", notes: ["Opens on the saved Dec 20–21 window with Foundry’s six Gantt bars", "Flight history table sorted and paged"] },
   { name: "Flights Map", dshot: "flights-map-v12", dapp: "flights-map-v12", short: "Flights Map", g: "flights-map-v12", dproof: "Verified with open items · 18 of 19 checks passed, 0 failed · coverage 93%", f: "f-flights-map.jpg", dbx: "flights-map-v12",
     proof: "Verified with open items · 33 checks, 0 failed · coverage 93%", notes: ["Search bar, route-volume labels and gradient map legend match Foundry", "Not rebuilt: the runways layer"] },
@@ -164,6 +164,7 @@ const APPS = [
 ];
 const N = APPS.length;
 let cur = 0, view = "d", gv = 1;
+const initView = () => { gv = APPS[cur].vdefault ?? 1; };
 const NAV = APPS.filter(a => !a.section).length;
 const stage = document.getElementById("stage");
 const el = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag); for (const [k, v] of Object.entries(attrs)) { if (k === "class") e.className = v; else if (k === "text") e.textContent = v; else e.setAttribute(k, v); } e.append(...kids); return e; };
@@ -199,11 +200,12 @@ function app(i) {
   const a = APPS[i];
   const s = el("section", { class: "slide" });
   s.append(el("div", { class: "head" }, el("div", {}, el("div", { class: "pos", text: a.section ? a.section + " · bike share · app " + (i - NAV + 1) + " of " + (N - NAV) : "Aviation · app " + (i + 1) + " of " + NAV }), el("h2", { text: a.name }), a.sub ? el("div", { class: "foot", text: a.sub }) : ""), el("span", { class: "chip " + (a.gap ? "warn" : "ok"), text: a.status || (a.gap ? "Gaps to close" : "Matches Foundry") })));
-  const fk = a.fviews ? a.fviews[gv][1] + ".jpg" : a.f;
+  const fv = a.fviews ? a.fviews[gv][1] : undefined;
+  const fk = a.fviews ? (fv ? fv + ".jpg" : null) : a.f;
   const left = el("figure", {}, el("div", { class: "fh" }, el("span", { class: "label", text: "Palantir Foundry" })),
-    a.f ? el("a", { class: "shot", href: "img/" + fk, target: "_blank", rel: "noopener" }, el("img", { src: "img/" + fk, alt: a.name + " in Palantir Foundry", loading: "lazy" }))
+    fk ? el("a", { class: "shot", href: "img/" + fk, target: "_blank", rel: "noopener" }, el("img", { src: "img/" + fk, alt: a.name + " in Palantir Foundry", loading: "lazy" }))
         : el("div", { class: "pending" }, el("span", { class: "chip warn", text: "Foundry capture coming" }), el("p", { text: "The screenshot of the original Workshop app is being taken in Foundry." })));
-  if (a.fnote) left.append(el("p", { class: "foot", text: a.fnote }));
+  if (a.fnote && (!a.fviews || gv === (a.vdefault ?? 1))) left.append(el("p", { class: "foot", text: a.fnote }));
   if (a.fviews) { const fs = el("div", { class: "gviews", role: "group", "aria-label": "Tab" }); a.fviews.forEach(([t], j) => { const b = el("button", { type: "button", "aria-pressed": String(j === gv), text: t }); b.onclick = () => { gv = j; render(); }; fs.append(b); }); left.querySelector(".fh").after(fs); }
   const seg = el("div", { class: "seg", role: "group", "aria-label": "Version" });
   const bd = el("button", { type: "button", "aria-pressed": String(view === "d") , text: "Databricks App" });
@@ -255,7 +257,7 @@ function render() {
   stage.scrollTop = 0;
   try { history.replaceState(null, "", "#" + (cur + 1)); } catch (e) {}
 }
-function go(n) { cur = (n + N) % N; gv = 1; render(); }
+function go(n) { cur = (n + N) % N; gv = APPS[cur].vdefault ?? 1; render(); }
 const tabs = document.getElementById("tabs");
 APPS.forEach((a, i) => { const t = el("button", { type: "button", class: "tab" + (a.section ? " mc" : ""), role: "tab", title: a.name, "aria-label": (i + 1) + ". " + a.name }, el("b", { text: String(i + 1) }), el("span", { text: a.short })); t.onclick = () => go(i); tabs.append(t); });
 document.getElementById("prev").onclick = () => go(cur - 1);
@@ -266,6 +268,7 @@ document.addEventListener("keydown", (e) => {
   else if (e.key === "Home") go(0);
 });
 const h = parseInt((location.hash || "").slice(1), 10); if (h >= 1 && h <= N) cur = h - 1;
+initView();
 render();
 </script>
 </body>
