@@ -254,14 +254,14 @@ function app(i) {
   const ul = el("ul"); a.notes.forEach(t => ul.append(el("li", { text: t })));
   s.append(el("div", { class: "proof" }, el("div", {}, el("h3", { text: "Proof against Foundry (Genesis)" }), el("div", { class: "num", text: a.proof }), a.dproof ? el("h3", { class: "dp", text: "Proof at the Databricks address" }) : "", a.dproof ? el("div", { class: "num" + (a.dwarn ? " dwarn" : ""), text: a.dproof }) : ""), el("div", {}, el("h3", { text: "Notes" }), ul)));
   if (unlocked) {
-    const G = "http://localhost:19271", L = (t, h) => el("a", { href: h, target: "_blank", rel: "noopener", text: t });
+    const G = "https://foundry.34.200.181.234.sslip.io", L = (t, h) => el("a", { href: h, target: "_blank", rel: "noopener", text: t });
     const row = el("div", { class: "row" },
       L("Eve’s mission for this app", G + "/missions/list/" + a.mission + "/"),
       L("Eve’s thread", G + "/chat/Eve/thread/" + a.thread),
       a.run ? L("Proof view (Venn) at the Databricks address", G + "/estate/?run=ecrun_" + a.run) : L("Prover estates", G + "/estate/"),
       L("The blueprint: foundry_workshop_to_app", G + "/blueprints/foundry_workshop_to_app"));
     if (a.section) row.append(L("MetroCycle data migration mission", G + "/missions/list/proj_Eve_mxFdfW/"), L("Data blueprint: foundry_to_databricks", G + "/blueprints/foundry_to_databricks"));
-    s.append(el("div", { class: "behind" }, el("h3", { text: "Behind the scenes · Genesis test server" }), row, el("p", { text: "Opens the Genesis server on cocofleet, reached through the SSH tunnel: ssh -N -L 19271:localhost:19271 cocofleet" })));
+    s.append(el("div", { class: "behind" }, el("h3", { text: "Behind the scenes · Genesis test server" }), row, el("p", { text: "Opens the Genesis test server on cocofleet. Reachable only from Justin’s network." })));
   }
   const how = el("details", { class: "howto" }, el("summary", { text: "How these were migrated" }));
   const ol = el("ol");
