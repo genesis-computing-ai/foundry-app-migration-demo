@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Palantir Workflows on Databricks</title>
+<meta name="description" content="How a Palantir Foundry workflow (Workflow Lineage) maps onto Databricks and Genesis after migration, node by node, with proof status.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* One long page: lineage graph beside its Databricks mapping, then how it becomes a product. Same tokens as the deck. */
+:root {
+  --bg: #f3f4f1; --panel: #ffffff; --ink: #17201e; --soft: #55615d; --line: #d8ddd6;
+  --accent: #0f7c6e; --accent-ink: #ffffff; --pal: #2c4a8a; --dbx: #d1301c; --warn: #8f5500; --warn-bg: #fbefd9; --ok-bg: #dcefe9;
+  --display: "Bricolage Grotesque", "IBM Plex Sans", system-ui, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root {
+  --bg: #111715; --panel: #1a2220; --ink: #e7edea; --soft: #a2afaa; --line: #2d3936;
+  --accent: #3fbfa9; --accent-ink: #0c1412; --pal: #8eaaf0; --dbx: #ff7a63; --warn: #f0b45a; --warn-bg: #3a2c14; --ok-bg: #173a33; color-scheme: dark } }
+* { box-sizing: border-box }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 var(--body); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 24px 56px }
+.wrap { max-width: 1320px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px }
+a { color: var(--accent) }
+.back { font-size: 13px }
+.label { font: 600 12px var(--body); text-transform: uppercase; letter-spacing: .09em; color: var(--soft) }
+h1 { font: 760 clamp(30px, 4.2vw, 52px)/1.05 var(--display); margin: 0; letter-spacing: -.012em; text-wrap: balance; max-width: 24ch }
+h2 { font: 680 clamp(21px, 2.3vw, 28px)/1.15 var(--display); margin: 0 0 10px; text-wrap: balance }
+p { margin: 0; max-width: 75ch }
+.lede { color: var(--soft); font-size: clamp(16px, 1.35vw, 19px) }
+.pair { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 20px; align-items: start }
+@media (max-width: 1000px) { .pair { grid-template-columns: 1fr } }
+figure { margin: 0; display: flex; flex-direction: column; gap: 8px; min-width: 0 }
+.shot { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--panel) }
+.shot img { width: 100%; height: auto; display: block }
+.cap { font-size: 13px; color: var(--soft) }
+.k-pal { color: var(--pal) } .k-dbx { color: var(--dbx) }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--panel) }
+table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 560px }
+th, td { text-align: left; vertical-align: top; padding: 9px 12px; border-bottom: 1px solid var(--line) }
+th { font: 600 11px var(--body); text-transform: uppercase; letter-spacing: .08em; color: var(--soft); background: var(--bg) }
+tr:last-child td { border-bottom: 0 }
+td code { font: 12.5px var(--mono); word-break: break-all }
+.kind { display: block; font-size: 12px; color: var(--soft) }
+.ok { color: var(--accent); font-weight: 600; white-space: nowrap }
+.gap { color: var(--warn); font-weight: 600; white-space: nowrap }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 6px }
+.card h3 { margin: 0; font: 650 17px var(--display) }
+.card p { color: var(--soft); font-size: 14px }
+.phase { font: 500 12px var(--mono); color: var(--accent) }
+.note { background: var(--warn-bg); color: var(--warn); border-radius: 10px; padding: 12px 14px; font-size: 14px }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">Back to the app deck</a>
+
+  <header style="display:grid;gap:10px">
+    <div class="label">Palantir Foundry · Workflow Lineage</div>
+    <h1>A Palantir workflow, node by node, on Databricks</h1>
+    <p class="lede">Foundry's Workflow Lineage draws the graph behind a use case: the Workshop apps, the object types they read, the actions that write, and how they connect. Here is that graph for Route Carriers, and where every node lives after Genesis migrated it.</p>
+  </header>
+
+  <section class="pair" aria-labelledby="g-h">
+    <figure>
+      <span class="label k-pal" id="g-h">Palantir Foundry · Workflow Lineage</span>
+      <a class="shot" href="img/f-route-carriers--workflow-lineage.jpg" target="_blank" rel="noopener"><img src="img/f-route-carriers--workflow-lineage.jpg" alt="Foundry Workflow Lineage graph for Route Carriers: two Workshop apps, six object types and two action types"></a>
+      <figcaption class="cap">Saved graph for [Example] Basic Charts | Route Carriers: 2 Workshop applications, 6 object types, 2 action types. The app embeds the reusable "Learn More" overlay, whose two actions write the Explainer object type; the app reads Route, Flight, Carrier, Aircraft and Airport. The "7" on the overlay: 7 Workshop apps use it.</figcaption>
+    </figure>
+    <div style="min-width:0;display:flex;flex-direction:column;gap:8px">
+      <span class="label k-dbx">Where each node lives now</span>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Foundry node</th><th>Databricks / Genesis</th><th>Proof</th></tr></thead>
+          <tbody>
+            <tr><td>Basic Charts | Route Carriers<span class="kind">Workshop application</span></td><td>Databricks App <code>route-carriers-v15</code>, plus the Genesis app</td><td class="ok">71/72 · 0 failed</td></tr>
+            <tr><td>Reusable "Learn More" Overlay<span class="kind">Workshop application, used by 7 apps</span></td><td>One shared Databricks App, <code>genesis-learn-more-overlay-v9</code>, opened from every app's "How it works" buttons</td><td class="ok">0 failed</td></tr>
+            <tr><td>Edit Callout · Add One State Callout<span class="kind">Action types</span></td><td>Save buttons in the app, writing to <code>exampleexplainer__edits</code> as the signed-in user</td><td class="ok">rehearsed on every proof</td></tr>
+            <tr><td>Explainer<span class="kind">Object type · 5 properties</span></td><td><code>foundry_ontology.exampleexplainer</code>, with a <code>_current</code> view that merges edits</td><td class="ok">matched</td></tr>
+            <tr><td>Route<span class="kind">Object type · 27 properties</span></td><td><code>foundry_ontology.exampleroute</code> (the app reads 5)</td><td class="ok">matched</td></tr>
+            <tr><td>Flight<span class="kind">Object type · 51 properties</span></td><td><code>foundry_ontology.exampleflight</code>, 1,660,475 rows (the app reads 13)</td><td class="ok">matched</td></tr>
+            <tr><td>Carrier<span class="kind">Object type · 12 properties</span></td><td><code>foundry_ontology.examplecarrier</code> (the app reads 3)</td><td class="ok">matched</td></tr>
+            <tr><td>Aircraft<span class="kind">Object type · 17 properties</span></td><td><code>foundry_ontology.exampleaircraft</code> (the app reads 9)</td><td class="ok">matched</td></tr>
+            <tr><td>Airport<span class="kind">Object type · 19 properties</span></td><td><code>foundry_ontology.exampleairport</code> (the app reads 4)</td><td class="ok">matched</td></tr>
+            <tr><td>Links between object types<span class="kind">Link types (the 🔗 counts)</span></td><td>Join keys between the tables, e.g. <code>flight.routeId = route.routeId</code></td><td class="ok">used by matched values</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="cap">Catalog <code>foundry_apps_oct15</code> on the Databricks GCP workspace. Proof figures are from the Prover's latest run at each Databricks App's address.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="mc-h">
+    <h2 id="mc-h">MetroCycle: a whole Marketplace product</h2>
+    <p>MetroCycle came from a Foundry Marketplace product: 13 datasets, 2 pipelines, 12 object types, 6 actions, 2 AI functions, 2 Workshop apps and a Quiver dashboard. All of it except the Quiver dashboard and the Foundry-hosted images is migrated and proved on Databricks. Foundry's own Workflow Lineage records no inputs for the MetroCycle module, likely because it was installed from Marketplace, so the graph there shows a single node; the full map has to be rebuilt from the definitions Genesis already reads (phase 1 below).</p>
+  </section>
+
+  <section aria-labelledby="next-h">
+    <h2 id="next-h">Turning this into a product</h2>
+    <p style="margin-bottom:14px">Workflow Lineage has no public API, so Genesis rebuilds the graph from Foundry's Ontology API and the Workshop definitions it already reads during a migration, and stores it in the Genesis Context Graph next to the Databricks side.</p>
+    <div class="cards">
+      <div class="card"><span class="phase">1 · Foundry side</span><h3>Scan the whole graph</h3><p>Object types, properties, links, actions and what they write, functions, AIP Logic, models, Workshop apps and the modules they embed, into the Context Graph.</p></div>
+      <div class="card"><span class="phase">2 · The bridge</span><h3>"Migrated to" and "proved by"</h3><p>Eve writes an edge from each Foundry node to its Unity Catalog table, Databricks App or serving endpoint as she migrates it, and to the Prover run that proved it. Never guessed from names.</p></div>
+      <div class="card"><span class="phase">3 · The view</span><h3>Workflow Lineage, for Databricks</h3><p>A Genesis page that looks like Palantir's: node cards with counts and status, a Foundry / Databricks / side-by-side toggle, click-through to Databricks, Foundry and the proof, and "Ask Eve" on any node.</p></div>
+      <div class="card"><span class="phase">4 · Into Databricks</span><h3>What Databricks can carry</h3><p>Table and column comments and tags, primary and foreign keys for the links, a Genie space per use case, and external lineage for the apps and actions. Actions, object views and the graph itself have no Databricks equivalent yet, so Genesis keeps the cross-platform record.</p></div>
+    </div>
+  </section>
+
+  <p class="note">Status: Route Carriers' mapping above is real and proved. The automated graph (phases 1–4) is planned, not built.</p>
+</div>
+</body>
+</html>
