@@ -30,7 +30,8 @@ h2 { font: 680 clamp(21px, 2.3vw, 28px)/1.15 var(--display); margin: 0 0 10px; t
 p { margin: 0; max-width: 75ch }
 .lede { color: var(--soft); font-size: clamp(16px, 1.35vw, 19px) }
 .pair { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 20px; align-items: start }
-@media (max-width: 1000px) { .pair { grid-template-columns: 1fr } }
+.pair.even { grid-template-columns: minmax(0,1fr) minmax(0,1fr) }
+@media (max-width: 1000px) { .pair, .pair.even { grid-template-columns: 1fr } }
 figure { margin: 0; display: flex; flex-direction: column; gap: 8px; min-width: 0 }
 .shot { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--panel) }
 .shot img { width: 100%; height: auto; display: block }
@@ -95,6 +96,15 @@ td code { font: 12.5px var(--mono); word-break: break-all }
   <section aria-labelledby="mc-h">
     <h2 id="mc-h">MetroCycle: a whole Marketplace product</h2>
     <p>MetroCycle came from a Foundry Marketplace product: 13 datasets, 2 pipelines, 12 object types, 6 actions, 2 AI functions, 2 Workshop apps and a Quiver dashboard. All of it except the Foundry-hosted images is migrated and proved on Databricks. The Quiver dashboard is now a <a href="https://8259562314487447.7.gcp.databricks.com/dashboardsv3/01f1cce102161b79bbff15409d7966f4/published" target="_blank" rel="noopener">Databricks AI/BI dashboard</a>, rebuilt by Eve and matching Foundry on all 88 weekly points. Foundry's own Workflow Lineage records no inputs for the MetroCycle module, likely because it was installed from Marketplace, so the graph there shows a single node; the full map has to be rebuilt from the definitions Genesis already reads (phase 1 below).</p>
+  </section>
+
+  <section aria-labelledby="quiver-h" style="display:grid;gap:14px">
+    <div><h2 id="quiver-h">MetroCycle’s Quiver dashboard, now a Databricks AI/BI dashboard</h2>
+    <p>Quiver publishes object analyses as read-only dashboards; the MetroCycle Financials app opens this one from “Open Ride Distribution Graph”. Eve read its saved definition, rebuilt the card as an AI/BI dashboard over <code>foundry_metrocycle.foundry_app_ontology.mcrides</code> (912,300 rides), and proved it: weekly ride counts per bike type match Foundry on all 88 week × type points. Blueprint <code>foundry_quiver_to_aibi</code>; nothing was hand-built.</p></div>
+    <div class="pair even">
+      <figure><span class="label k-pal">Palantir Foundry · Quiver dashboard</span><a class="shot" href="https://genesis.usw-17.palantirfoundry.com/workspace/quiver/dashboard/view/ri.quiver.main.dashboard.5ad8c0ed-d599-4a1e-84ca-a986a3da8cdc" target="_blank" rel="noopener"><img src="img/f-metrocycle--quiver-ride-distribution.jpg" alt="Foundry Quiver Ride Distribution Dashboard: weekly ride counts for classic and electric bikes through 2024"></a><figcaption class="cap">Ride Distribution: object count by week of Trip Date, one line per rideable type.</figcaption></figure>
+      <figure><span class="label k-dbx">Databricks · AI/BI dashboard</span><a class="shot" href="https://8259562314487447.7.gcp.databricks.com/dashboardsv3/01f1cce102161b79bbff15409d7966f4/published" target="_blank" rel="noopener"><img src="img/d-metrocycle--aibi-ride-distribution.jpg" alt="Databricks AI/BI Ride Distribution Dashboard with the same weekly lines for classic and electric bikes"></a><figcaption class="cap">The same card on Databricks, with Genie beside it to ask questions of the data. Line colours differ from Foundry’s (not yet matched).</figcaption></figure>
+    </div>
   </section>
 
   <section aria-labelledby="next-h">
