@@ -261,7 +261,7 @@ function app(i) {
       L("Eve’s thread", G + "/chat/Eve/thread/" + a.thread),
       a.run ? L("Proof view (Venn) at the Databricks address", G + "/estate/?run=ecrun_" + a.run) : L("Prover estates", G + "/estate/"),
       L("The blueprint: foundry_workshop_to_app", G + "/blueprints/foundry_workshop_to_app"));
-    if (a.section) row.append(L("MetroCycle data migration mission", G + "/missions/list/proj_Eve_mxFdfW/"), L("Data blueprint: foundry_to_databricks", G + "/blueprints/foundry_to_databricks"));
+    if (a.section) row.append(L("MetroCycle data migration mission", G + "/missions/list/proj_Eve_mxFdfW/"), L("Data blueprint: foundry_to_databricks", G + "/blueprints/foundry_to_databricks?blueprint_id=default:foundry_to_databricks"));
     if (a.name === "MetroCycle") row.append(L("Quiver “Ride Distribution Dashboard” in Foundry", "https://genesis.usw-17.palantirfoundry.com/workspace/quiver/dashboard/view/ri.quiver.main.dashboard.5ad8c0ed-d599-4a1e-84ca-a986a3da8cdc"), L("Same dashboard on Databricks AI/BI (88/88 points match)", "https://8259562314487447.7.gcp.databricks.com/dashboardsv3/01f1cce102161b79bbff15409d7966f4/published"), L("Eve’s Quiver → AI/BI mission", G + "/missions/list/proj_Eve_IZvvXY/"), L("Eve’s Quiver thread", G + "/chat/Eve/thread/chat_1792557890-0m8n2i10"), L("Blueprint: foundry_quiver_to_aibi", G + "/blueprints/foundry_quiver_to_aibi"));
     s.append(el("div", { class: "behind" }, el("h3", { text: "Behind the scenes · Genesis on justin-yacht" }), row, el("p", { text: "Opens Genesis on justin-yacht (Genesis lab sign-in required)." })));
   }
